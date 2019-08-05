@@ -6,22 +6,21 @@ def help
   print '''A simple Ruby-script to export k8s resources
 
 Export a specific resource with either of the following commands:
-kubectl exporter <resource> <name>
-kubectl exporter <resource>/<name>
+kubectl eksporter <resource> <name>
+kubectl eksporter <resource>/<name>
 
-Export all resources:
-kubectl exporter <resource>
+Export all resources with:
+kubectl eksporter <resource>
 '''
 end
 
 def parse_input
-  if ARGV.length > 2
-    p "Too many arguments"
+  if ARGV.length == 0
+    p "Too few arguments"
     help
     exit
   end
-  if ARGV.length == 0
-    p "Too few arguments"
+  if ARGV[0] =~ /-(h|-help)/
     help
     exit
   end
