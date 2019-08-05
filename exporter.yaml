@@ -1,0 +1,24 @@
+apiVersion: krew.googlecontainertools.github.com/v1alpha2
+kind: Plugin
+metadata:
+  name: exporter
+spec:
+  version: "v1.0.0"
+  platforms:
+  - selector:
+      matchExpressions:
+      - {key: os, operator: In, values: [darwin, linux]}
+    uri: https://github.com/Kyrremann/kubeflow-exporter/releases/download/v1.0.0/exporter.tar.gz
+    sha256: "5ad41d3eadc789f55ba719df9a5fe67600c203415ac7b7dcafcf0f2fe0dfad17"
+    files:
+    - from: "/exporter.rb"
+      to: "."
+    bin: "./exporter.rb"
+  shortDescription: Export resources without generated fields
+  homepage: https://github.com/Kyrremann/kubeflow-exporter
+  caveats: |
+    This plugin needs the following programs:
+    * ruby
+  description: |
+    This plugin helps you export resources, and trims away the fields
+    not necessary for applying the resource back into the cluster.
