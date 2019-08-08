@@ -3,7 +3,7 @@
 require 'yaml'
 
 def help
-  print '''A simple Ruby-script to export k8s resources
+  print '''Export resources and removes a pre-defined set of fields for later import
 
 Export a specific resource with either of the following commands:
 kubectl eksporter <resource> <name>

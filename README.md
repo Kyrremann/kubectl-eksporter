@@ -1,7 +1,7 @@
 kubeflow-eksporter
 ==================
 
-> A simple Ruby-script to export k8s resources
+> A simple Ruby-script to export k8s resources, and removes a pre-defined set of fields for later import
 
 
 ## Usage
