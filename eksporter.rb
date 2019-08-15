@@ -3,14 +3,21 @@
 require 'yaml'
 
 def help
-  print '''Export resources and removes a pre-defined set of fields for later import
+  puts '''Usage: kubectl eksporter <resource> <name>
+Export resources and removes a pre-defined set of fields for later import
 
 Export a specific resource with either of the following commands:
 kubectl eksporter <resource> <name>
 kubectl eksporter <resource>/<name>
 
-Export all resources with:
+Export all resources of one type with:
 kubectl eksporter <resource>
+
+Eksporter also supports piping resources:
+kubectl get pod -o yaml <name> | kubectl eksporter
+
+You can also use arguments that are supported by kubectl-get, such
+as --namespace/-n, or --selector/-n. See kubectl get -h for more.
 '''
 end
 
@@ -43,24 +50,36 @@ def clean_resource(resource)
   resource
 end
 
-def main
-  parse_input
-
-  args = ARGV.join(' ')
-  resources = YAML.load(`kubectl get #{args} -o yaml`)
-
-  if $?.success?
-    if resources.has_key?('items')
-      resources['items'].each do |resource|
-        print YAML.dump(clean_resource(resource))
-      end
-    else
-      print YAML.dump(clean_resource(resources))
+def parse_resources(resources)
+  if resources.has_key?('items')
+    resources['items'].each do |resource|
+      print YAML.dump(clean_resource(resource))
     end
-
   else
-    print resources
+    print YAML.dump(clean_resource(resources))
   end
+end
+
+def main
+  resources = nil
+  if  (not STDIN.tty? and not STDIN.closed?) # ARGF.filename != "-" or
+    input = ARGF.read
+    resources = YAML.load(input)
+  else
+    parse_input
+
+    args = ARGV.join(' ')
+    output = `kubectl get #{args} -o yaml`
+
+    if $?.success?
+      resources = YAML.load(output)
+    else
+      print resource
+      exit(1)
+    end
+  end
+
+  parse_resources(resources)
 end
 
 main
