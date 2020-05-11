@@ -47,6 +47,9 @@ def clean_resource(resource)
   resource['metadata'].delete('selfLink')
   resource['metadata'].delete('uid')
   resource.delete('status')
+  if resource['spec'].has_key?('clusterIP')
+    resource['spec'].delete('clusterIP')
+  end
   resource
 end
 
