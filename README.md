@@ -59,12 +59,5 @@ Python didn't have a built-in yaml-converter, and Go is a hassle to work with wh
 ## Release
 
 1. Make changes to the code
-2. Create a tar-archive of the code
-   * `tar -czvf eksporter.tar.gz eksporter.rb LICENSE`
-3. Create new release on [Github](https://github.com/Kyrremann/kubectl-eksporter/releases/new)
-4. Update `eksporter.yaml` with new version and sha
-   * `sha256sum eksporter.tar.gz`
-5. Test new release with krew
-   * `kubectl krew install --manifest eksporter.yaml --archive eksporter.tar.gz`
-6. Create PR for (krew-index](https://github.com/kubernetes-sigs/krew-index)
-7. Wait for merge
+2. Tag with `git tag -a v1.3.0`
+3. New release is automated created and pushed to Krew
