@@ -3,7 +3,7 @@ kind: Plugin
 metadata:
   name: eksporter
 spec:
-  version: "v1.1.0"
+  version: {{ .TagName }}
   platforms:
   - selector:
       matchExpressions:
@@ -13,8 +13,7 @@ spec:
         - darwin
         - linux
         - windows
-    uri: https://github.com/Kyrremann/kubectl-eksporter/releases/download/v1.3.0/eksporter.tar.gz
-    sha256: "3b37fb6f619b870a3da12e728f36679e85cb6b7934de2da6c365c16d8fb64fd0"
+    {{addURIAndSha "https://github.com/Kyrremann/kubectl-eksporter/releases/download/{{ .TagName }}/eksporter.tar.gz" .TagName }}
     files:
     - from: "/eksporter.rb"
       to: "."
