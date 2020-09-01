@@ -28,8 +28,8 @@ jobs:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create_release.outputs.upload_url }}
-        asset_path: ./eksporter.zip
-        asset_name: eksporter.zip
+        asset_path: ./eksporter.tar.gz
+        asset_name: eksporter.tar.gz
         asset_content_type: application/zip
     - name: Update new version in krew-index
       uses: rajatjindal/krew-release-bot@v0.0.38
