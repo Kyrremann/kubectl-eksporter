@@ -10,7 +10,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v2
     - name: Tar the plugin
-        run: tar -czvf eksporter.tar.gz eksporter.rb LICENSE
+      run: tar -czvf eksporter.tar.gz eksporter.rb LICENSE
     - name: Create Release
       id: create_release
       uses: actions/create-release@v1
