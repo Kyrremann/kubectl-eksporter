@@ -32,4 +32,4 @@ jobs:
         asset_name: eksporter.tar.gz
         asset_content_type: application/zip
     - name: Update new version in krew-index
-      uses: rajatjindal/krew-release-bot@v0.0.38
+      uses: rajatjindal/krew-release-bot@v0.0.39
