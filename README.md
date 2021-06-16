@@ -15,6 +15,13 @@ kubectl eksporter <resource> <name>
 The eksporter also supports piping.
 
 
+### Command arguments
+
+#### --keep
+
+If you need some of the pre-defined fields, you can list them with `--keep` and they will not be removed.
+
+
 ### Example
 
 ```
