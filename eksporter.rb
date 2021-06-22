@@ -20,16 +20,15 @@ kubectl eksporter <resource>
 Eksporter also supports piping resources:
 kubectl get pod -o yaml <name> | kubectl eksporter
 
-You can also use arguments that are supported by kubectl-get, such
-as --namespace/-n, or --selector/-n. See kubectl get -h for more.
+Some arguments that are supported by kubectl-get are also supported by eksporter.
 
-Arguments specific for eksporter
+Arguments for eksporter
 '''
 
-  opts.on("--keep field1,field2,field3", Array, "Keep fields that are marked for deletion") do |keep|
-    OPTIONS[:keep] = keep
-  end
-end.parse!
+  opts.on("--keep field1,field2,field3", Array, "Keep fields that are marked for deletion")
+  opts.on("-n", "--namespace namespace", "If present, the namespace scope for this CLI request")
+  opts.on("-l", "--selector label", "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)")
+end.parse!(into: OPTIONS)
 
 def clean_resource(resource, keep)
   resource['metadata'].delete('annotations') unless keep.include?('annotations')
@@ -56,7 +55,13 @@ end
 
 def parse_resources(resources, keep)
   if resources.has_key?('items')
-    resources['items'].each do |resource|
+    items = resources['items']
+    if items.empty?
+      puts "No resources found"
+      exit
+    end
+
+    items.each do |resource|
       print YAML.dump(clean_resource(resource, keep))
     end
   else
@@ -71,7 +76,10 @@ def main
     resources = YAML.load(input)
   else
     args = ARGV.join(' ')
-    output = `kubectl get #{args} -o yaml`
+    cmd = "kubectl get #{args} -o yaml"
+    cmd += " -n #{OPTIONS[:namespace]}" if OPTIONS.has_key?(:namespace)
+    cmd += " -l #{OPTIONS[:selector]}" if OPTIONS.has_key?(:selector)
+    output = `#{cmd}`
 
     if $?.success?
       resources = YAML.load(output)
@@ -81,7 +89,7 @@ def main
     end
   end
 
-  parse_resources(resources, OPTIONS[:keep])
+  parse_resources(resources, OPTIONS[:keep] || [])
 end
 
 main
