@@ -76,7 +76,7 @@ def main
     if $?.success?
       resources = YAML.load(output)
     else
-      print resource
+      print resources
       exit(1)
     end
   end
