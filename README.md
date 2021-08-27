@@ -17,6 +17,10 @@ The eksporter also supports piping.
 
 ### Command arguments
 
+#### --drop
+
+You can easily remove more fields with the `--drop` argument. List the fields (also nested fields) to be removed.
+
 #### --keep
 
 If you need some of the pre-defined fields, you can list them with `--keep` and they will not be removed.
