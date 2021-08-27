@@ -26,46 +26,48 @@ Arguments for eksporter
 '''
 
   opts.on("--keep field1,field2,field3", Array, "Keep fields that are marked for deletion")
-  opts.on("-n", "--namespace namespace", "If present, the namespace scope for this CLI request")
-  opts.on("-l", "--selector label", "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)")
+  opts.on("--drop field1,field2,field3", Array, "Drop fields that normally are spared")
+  opts.on("-n", "--namespace namespace", String, "If present, the namespace scope for this CLI request")
+  opts.on("-l", "--selector label", String, "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)")
 end.parse!(into: OPTIONS)
 
-def clean_resource(resource, keep)
-  resource['metadata'].delete('annotations') unless keep.include?('annotations')
-  resource['metadata'].delete('creationTimestamp') unless keep.include?('creationTimestamp')
-  resource['metadata'].delete('generateName') unless keep.include?('generateName')
-  resource['metadata'].delete('generation') unless keep.include?('generation')
-  if resource['metadata'].has_key?('labels')
-    resource['metadata'].delete('labels') if resource['metadata']['labels'].empty?
-  end
-  resource['metadata'].delete('namespace') unless keep.include?('namespace')
-  resource['metadata'].delete('ownerReferences') unless keep.include?('ownerReferences')
-  resource['metadata'].delete('resourceVersion') unless keep.include?('resourceVersion')
-  resource['metadata'].delete('selfLink') unless keep.include?('selfLink')
-  resource['metadata'].delete('managedFields') unless keep.include?('managedFields')
-  resource['metadata'].delete('uid') unless keep.include?('uid')
-  resource.delete('status') unless keep.include?('status')
-  if resource.has_key?('spec')
-    if resource['spec'].has_key?('clusterIP')
-      resource['spec'].delete('clusterIP') unless keep.include?('clusterIP')
+def delete_field(resource, fields)
+  field = fields.shift
+  if fields.empty?
+    if resource.kind_of?(Array)
+      resource.each do |res|
+        delete_field(res, [field])
+      end
+    else
+      resource.delete(field)
     end
+  else
+    delete_field(resource[field], fields)
   end
+end
+
+def clean_resource(resource, removable_fields)
+  removable_fields.each do |field|
+    fields = field.split('.')
+    delete_field(resource, fields)
+  end
+
   resource
 end
 
-def parse_resources(resources, keep)
+def parse_resources(resources, removable_fields)
   if resources.has_key?('items')
     items = resources['items']
     if items.empty?
       puts "No resources found"
       exit
     end
-
-    items.each do |resource|
-      print YAML.dump(clean_resource(resource, keep))
-    end
   else
-    print YAML.dump(clean_resource(resources, keep))
+    items = [resources]
+  end
+
+  items.each do |resource|
+    print YAML.dump(clean_resource(resource, removable_fields))
   end
 end
 
@@ -89,7 +91,24 @@ def main
     end
   end
 
-  parse_resources(resources, OPTIONS[:keep] || [])
+  removable_fields = [
+    'metadata.annotations',
+    'metadata.creationTimestamp',
+    'metadata.generateName',
+    'metadata.generation',
+    'metadata.labels',
+    'metadata.namespace',
+    'metadata.ownerReferences',
+    'metadata.resourceVersion',
+    'metadata.selfLink',
+    'metadata.managedFields',
+    'metadata.uid',
+    'spec.clusterIP',
+    'status']
+  removable_fields |= (OPTIONS[:drop] || [])
+  removable_fields = removable_fields - (OPTIONS[:keep] || [])
+
+  parse_resources(resources, removable_fields)
 end
 
 main
