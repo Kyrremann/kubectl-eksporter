@@ -3,10 +3,8 @@
 require 'optparse'
 require 'yaml'
 
-ARGV << '-h' if ARGV.empty?
-
 OPTIONS = {}
-OptionParser.new do |opts|
+OPTIONPARSER = OptionParser.new do |opts|
   opts.banner = '''Usage: kubectl eksporter <resource> <name>
 Export resources and removes a pre-defined set of fields for later import
 
@@ -29,7 +27,7 @@ Arguments for eksporter
   opts.on("--drop field1,field2,field3", Array, "Drop fields that normally are spared")
   opts.on("-n", "--namespace namespace", String, "If present, the namespace scope for this CLI request")
   opts.on("-l", "--selector label", String, "Selector (label query) to filter on, supports '=', '==', and '!='.(e.g. -l key1=value1,key2=value2)")
-end.parse!(into: OPTIONS)
+end
 
 def delete_field(resource, fields)
   field = fields.shift
@@ -77,6 +75,9 @@ def main
     input = ARGF.read
     resources = YAML.load(input)
   else
+    ARGV << '-h' if ARGV.empty?
+    OPTIONPARSER.parse!(into: OPTIONS)
+
     args = ARGV.join(' ')
     cmd = "kubectl get #{args} -o yaml"
     cmd += " -n #{OPTIONS[:namespace]}" if OPTIONS.has_key?(:namespace)
