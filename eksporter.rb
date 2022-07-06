@@ -37,7 +37,7 @@ def delete_field(resource, fields)
         delete_field(res, [field])
       end
     else
-      resource.delete(field)
+      resource.delete(field) if resource
     end
   else
     delete_field(resource[field], fields)
